@@ -1,0 +1,47 @@
+SEMI-PSEUDO CODE:
+
+#define int SAMPLE_RATE = 10;
+#define int THRESHOLD = 600;
+
+queue<Data> queue;
+Data latest_calibrated_data;
+
+void loop()
+{
+	if (detect_collision())
+	{
+		crash_occured();
+	}
+
+	delay(10);
+}
+
+
+bool detect_collision()
+
+{
+	Data raw_data = get_accelerometer_data();
+	queue.push(raw_data);
+
+	if (queue.size() >= 6)
+	{
+		queue.pop();
+	}
+
+	Data current_calibrated_data = calibrate_data();
+	int vector_sum = calculate_vector_sum(current_calibrated_data, latest_calibrated_data);
+
+	latest_calibrated_data = current_calibrated_data;
+
+	if (vector_sum > THRESHOLD)
+	{
+		return true;
+	}
+
+	return false;
+
+}
+
+
+
+
