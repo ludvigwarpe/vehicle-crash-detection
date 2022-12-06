@@ -1,0 +1,121 @@
+SEMI-PSEUDO CODE:
+
+typedef struct Data
+{
+	float x;
+	float y;
+	float z;
+} Data;
+
+queue<Data> queue;
+Data previous_calibrated_data;
+
+void loop()
+{
+	if (detect_collision())
+	{
+		crash_occured();
+	}
+
+	delay(SAMPLE_RATE);
+}
+
+
+bool detect_collision()
+
+{
+	Data raw_data = get_accelerometer_data();
+	queue.push(raw_data);
+
+	if (queue.size() >= 6)
+	{
+		queue.pop();
+	}
+
+	Data current_calibrated_data = calibrate_data();
+	float vector_sum = calculate_vector_sum(current_calibrated_data, previous_calibrated_data);
+
+	previous_calibrated_data = current_calibrated_data;
+
+	if (vector_sum > THRESHOLD)
+	{
+		return true;
+	}
+
+	return false;
+
+}
+
+Data calibrate_data()
+{
+	
+
+	float x_sum = 0.0f;
+	float y_sum = 0.0f;
+	float z_sum = 0.0f;
+
+	for (struct Data d: queue)
+	{
+		x_sum += d.x;
+		y_sum += d.y;
+		z_sum += d.z;
+	}
+
+	float x1_avg = x_sum / queue.size();
+	float y1_avg = y_sum / queue.size();
+	float z1_avg = z_sum / queue.size();
+
+	float x_even_sum = 0.0f;
+	float x_odd_sum = 0.0f;
+
+	float y_even_sum = 0.0f;
+	float y_odd_sum = 0.0f;
+
+	float z_even_sum = 0.0f;
+	float z_odd_sum = 0.0f;
+
+	int i = 1;
+
+	for (auto& d: queue)
+	{
+		if (i % 2 == 0)
+		{
+			x_even_sum += d.x;
+			y_even_sum += d.y;
+			z_even_sum += d.z;
+		}
+
+		else
+		{
+			x_odd_sum += d.x;
+			y_odd_sum += d.y;
+			z_odd_sum += d.z;
+		}
+		i++;
+	}
+
+	int half_queue_size = queue.size() / 2;
+
+	float x2_avg = (x_odd_sum / half_queue_size) + (x_even_sum / half_queue_size);
+	float y2_avg = (y_odd_sum / half_queue_size) + (y_even_sum / half_queue_size);
+	float z2_avg = (z_odd_sum / half_queue_size) + (z_even_sum / half_queue_size);
+
+	float x = (x1_avg + x2_avg) / 2;
+	float y = (y1_avg + y2_avg) / 2;
+	float z = (z1_avg + z2_avg) / 2;
+	
+	Data calibrated_data = {.x = x, .y = y, .z = z};
+
+	return calibrated_data;
+	
+
+	
+	
+
+
+
+}
+
+
+
+
