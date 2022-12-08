@@ -14,6 +14,10 @@ constexpr std::uint8_t ZERO = 0u;
 constexpr std::uint8_t ONE = 1u;
 constexpr std::uint8_t TWO = 2u;
 
+float x_out;
+float y_out;
+float z_out;
+
 struct AcceleratorData {
   float x;
   float y;
@@ -37,6 +41,7 @@ void initialize_accelerometer() {
 }
 
 struct AcceleratorData get_accelerator_data() {
+
   Wire.beginTransmission(ADXL345);
   Wire.write(0x32);
   Wire.endTransmission(false);
