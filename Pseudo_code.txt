@@ -27,7 +27,7 @@ bool detect_collision()
 	Data raw_data = get_accelerometer_data();
 	queue.push(raw_data);
 
-	if (queue.size() >= 6)
+	if (queue.size() > 6)
 	{
 		queue.pop();
 	}

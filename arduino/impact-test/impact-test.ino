@@ -8,10 +8,15 @@ void setup() {
 
 
 void loop() {
-  value = digitalRead(knockPin); //reads status of sensor
+  value = digitalRead(impactPin); //reads status of sensor
 
-  if (value == HIGH) {
+  if (value == LOW) {
+    //Serial.print("KY-031: ");
+    Serial.println("IMPACT!!!!!");
+  }
+  /*else{
     Serial.print("KY-031: ");
     Serial.println(value);
-  }
+  }*/
+  //delay(1000);
 }
