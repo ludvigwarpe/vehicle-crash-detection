@@ -8,11 +8,18 @@ void setup() {
 
   Serial.println("Setting up!");
   Serial.begin(BOUND);
+  initialize_accelerometer();
 
 }
 
 void loop() {
-  detect_collision();
+
+
+  if (detect_collision())
+  {
+    Serial.println("Collision has occured!");
+    while(1);
+  }
   delay(SAMPLE_RATE);
 
 }
