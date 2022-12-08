@@ -1,8 +1,12 @@
 #ifndef ACCELEROMETER_DATA_HANDLER_H
 #define ACCELEROMETER_DATA_HANDLER_H
+
+#include <Wire.h>
 #include <stdbool.h>
 #include <math.h>
 #include <iostream>
+
+int ADXL345 = 0x53;
 
 constexpr std::uint8_t THRESHOLD = 2u; // will have to be fine tuned
 constexpr std::uint8_t QUEUE_CAPACITY = 6u;
@@ -24,14 +28,33 @@ std::uint8_t queue_size = 0u;
 
 struct AcceleratorData previous_calibrated_data;
 
+void initialize_accelerometer(){
+  Wire.begin();
+  Wire.beginTransmission(ADXL345);
+  Wire.write(0x2D);
+  Wire.write(8);
+  Wire.endTransmission();
+  delay(10);
+}
 
-// temporary method with mock values
 struct AcceleratorData get_accelerator_data()
 {
+  Wire.beginTransmission(ADXL345);
+  Wire.write(0x32);
+  Wire.endTransmission(false);
+  Wire.requestFrom(ADXL345, 6, true);
+  x_out = (Wire.read()|Wire.read() << 8);
+  x_out = x_out/256;
+  y_out = (Wire.read()|Wire.read() << 8);
+  y_out = y_out/256;
+  z_out = (Wire.read()|Wire.read() << 8);
+  z_out = z_out/256;
+
 	struct AcceleratorData raw_data;
-	raw_data.x = 1.0f;
-	raw_data.y = 2.0f;
-	raw_data.z = 3.0f;
+	raw_data.x = x_out;
+	raw_data.y = y_out;
+	raw_data.z = z_out;
+
 	return raw_data;
 }
 
