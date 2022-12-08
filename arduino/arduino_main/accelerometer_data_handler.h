@@ -1,12 +1,14 @@
 #ifndef ACCELEROMETER_DATA_HANDLER_H
 #define ACCELEROMETER_DATA_HANDLER_H
-/*
 #include <stdbool.h>
 #include <math.h>
-#include <queue.h>
+#include <iostream>
 
-constexpr std::size_t SAMPLE_RATE = 10; // not used here
-constexpr std::size_t THRESHOLD = 2; // will have to be fine tuned
+constexpr std::uint8_t THRESHOLD = 2u; // will have to be fine tuned
+constexpr std::uint8_t QUEUE_CAPACITY = 6u;
+constexpr std::uint8_t ZERO = 0u; 
+constexpr std::uint8_t ONE = 1u; 
+constexpr std::uint8_t TWO = 2u;
 
 struct AcceleratorData
 {
@@ -15,7 +17,11 @@ struct AcceleratorData
 	float z;
 };
 
-std::queue<struct AcceleratorData> queue;
+struct AcceleratorData queue[QUEUE_CAPACITY];
+std::uint8_t queue_front = 0u;
+std::uint8_t queue_rear = 0u;
+std::uint8_t queue_size = 0u;
+
 struct AcceleratorData previous_calibrated_data;
 
 
@@ -23,10 +29,31 @@ struct AcceleratorData previous_calibrated_data;
 struct AcceleratorData get_accelerator_data()
 {
 	struct AcceleratorData raw_data;
-	raw_data.x = 1;
-	raw_data.y = 2;
-	raw_data.z = 3;
+	raw_data.x = 1.0f;
+	raw_data.y = 2.0f;
+	raw_data.z = 3.0f;
 	return raw_data;
+}
+
+void enqueue(struct AcceleratorData data){
+
+
+	if (queue_size < QUEUE_CAPACITY)
+	{
+		queue_rear = (queue_rear+ONE) % QUEUE_CAPACITY;
+		queue[queue_rear] = data;
+		queue_size++;
+	}
+}
+
+void dequeue(){
+
+
+	if (queue_size > ZERO)
+	{
+		queue_front = (queue_front+ONE) % QUEUE_CAPACITY;
+		queue_size--;
+	}
 }
 
 float calculate_vector_sum(struct AcceleratorData current, struct AcceleratorData previous)
@@ -38,7 +65,6 @@ float calculate_vector_sum(struct AcceleratorData current, struct AcceleratorDat
 	return sqrt(x - y - z);
 }
 
-//calibrates raw data
 struct AcceleratorData calibrate_data()
 	{
 	
@@ -47,20 +73,17 @@ struct AcceleratorData calibrate_data()
 	float y_sum = 0.0f;
 	float z_sum = 0.0f;
 
-	std::queue<struct AcceleratorData> copy = queue;
 
-	while (!copy.empty())
+	for (std::uint8_t i = ZERO; i < queue_size; i++) 
 	{
-		struct AcceleratorData ad = copy.front();
-		x_sum += ad.x;
-		y_sum += ad.y;
-		z_sum += ad.z;
-		copy.pop();
+		x_sum += queue[i].x;
+		y_sum += queue[i].y;
+		z_sum += queue[i].z;
 	}
 
-	float x1_avg = x_sum / queue.size();
-	float y1_avg = y_sum / queue.size();
-	float z1_avg = z_sum / queue.size();
+	float x1_avg = x_sum / queue_size;
+	float y1_avg = y_sum / queue_size;
+	float z1_avg = z_sum / queue_size;
 
 	float x_even_sum = 0.0f;
 	float x_odd_sum = 0.0f;
@@ -71,39 +94,38 @@ struct AcceleratorData calibrate_data()
 	float z_even_sum = 0.0f;
 	float z_odd_sum = 0.0f;
 
-	int i = 1;
 
-	copy = queue;
-
-	while (!copy.empty())
+	for (std::uint8_t i = ZERO; i < queue_size; i++) 
 	{
-		struct AcceleratorData ad = copy.front();
-		if (i % 2 == 0)
+		if (i % TWO == ZERO)
 		{
-			x_even_sum += ad.x;
-			y_even_sum += ad.y;
-			z_even_sum += ad.z;
+			x_even_sum += queue[i].x;
+			y_even_sum += queue[i].y;
+			z_even_sum += queue[i].z;
 		}
 
 		else
 		{
-			x_odd_sum += ad.x;
-			y_odd_sum += ad.y;
-			z_odd_sum += ad.z;
+			x_odd_sum += queue[i].x;
+			y_odd_sum += queue[i].y;
+			z_odd_sum += queue[i].z;
 		}
-		copy.pop();
-		i++;
 	}
 
-	int half_queue_size = queue.size() / 2;
+	std::uint8_t half_queue_size = queue_size / TWO;
+
+	if (half_queue_size == ZERO)
+	{
+		half_queue_size = ONE;
+	}
 
 	float x2_avg = (x_odd_sum / half_queue_size) + (x_even_sum / half_queue_size);
 	float y2_avg = (y_odd_sum / half_queue_size) + (y_even_sum / half_queue_size);
 	float z2_avg = (z_odd_sum / half_queue_size) + (z_even_sum / half_queue_size);
 
-	float x = (x1_avg + x2_avg) / 2;
-	float y = (y1_avg + y2_avg) / 2;
-	float z = (z1_avg + z2_avg) / 2;
+	float x = (x1_avg + x2_avg) / TWO;
+	float y = (y1_avg + y2_avg) / TWO;
+	float z = (z1_avg + z2_avg) / TWO;
 
 	struct AcceleratorData calibrated_data;
 
@@ -114,20 +136,20 @@ struct AcceleratorData calibrate_data()
 	return calibrated_data;
 }
 
-// main collision detection method
-bool detect_collision()
 
+
+bool detect_collision()
 {
 
 	struct AcceleratorData raw_data = get_accelerator_data();
 
 
-	queue.push(raw_data);
-
-	if (queue.size() >= 6)
+	if (queue_size == QUEUE_CAPACITY)
 	{
-		queue.pop();
+		dequeue();
 	}
+	enqueue(raw_data);
+
 
 	struct AcceleratorData current_calibrated_data = calibrate_data();
 	float vector_sum = calculate_vector_sum(current_calibrated_data, previous_calibrated_data);
@@ -145,6 +167,5 @@ bool detect_collision()
 
 }
 
-*/
 
 #endif
