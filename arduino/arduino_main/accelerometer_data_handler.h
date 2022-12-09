@@ -6,6 +6,7 @@
 #include <math.h>
 #include <iostream>
 
+
 int ADXL345 = 0x53;
 
 constexpr std::uint8_t THRESHOLD = 2u;  // will have to be fine tuned
@@ -29,6 +30,7 @@ std::uint8_t queue_front = 0u;
 std::uint8_t queue_rear = 0u;
 std::uint8_t queue_size = 0u;
 
+struct AcceleratorData current_calibrated_data;
 struct AcceleratorData previous_calibrated_data;
 
 void initialize_accelerometer() {
@@ -80,10 +82,10 @@ void dequeue() {
   }
 }
 
-float calculate_vector_sum(struct AcceleratorData current, struct AcceleratorData previous) {
-  float x = current.x - previous.x;
-  float y = current.y - previous.y;
-  float z = current.z - previous.z;
+float calculate_vector_sum() {
+  float x = current_calibrated_data.x - previous_calibrated_data.x;
+  float y = current_calibrated_data.y - previous_calibrated_data.y;
+  float z = current_calibrated_data.z - previous_calibrated_data.z;
 
   return sqrt(x - y - z);
 }
@@ -166,8 +168,8 @@ bool has_accelerometer_collision() {
   enqueue(raw_data);
 
 
-  struct AcceleratorData current_calibrated_data = calibrate_data();
-  float vector_sum = calculate_vector_sum(current_calibrated_data, previous_calibrated_data);
+  current_calibrated_data = calibrate_data();
+  float vector_sum = calculate_vector_sum();
 
   previous_calibrated_data = current_calibrated_data;
 

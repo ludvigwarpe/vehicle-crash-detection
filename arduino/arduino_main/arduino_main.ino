@@ -17,14 +17,14 @@ void setup() {
 }
 
 bool has_impact_collsion(){
-  return (impact_value == LOW);
+  return impact_value == LOW;
 }
 
 void loop() {
 
   /*impact_value = digitalRead(impactPin); //reads impact sensor
 
-  if (impact_value == LOW)
+  if (has_impact_collsion())
   {
     Serial.println("Impact collision has occured!");
   }*/
