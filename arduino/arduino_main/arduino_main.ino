@@ -1,16 +1,16 @@
 #include "accelerometer_data_handler.h"
+#include <stdint.h>
 
-constexpr std::uint16_t BOUND = 9600u;
-constexpr std::uint8_t SAMPLE_RATE = 10u;
+constexpr byte SAMPLE_RATE = 10;
 
-const std::uint8_t impact_pin = 3; //declares the impact sensor @pin 3
-std::uint8_t impact_value;
+const byte impact_pin = 3; //declares the impact sensor @pin 3
+byte impact_value = 0;
 
 
 void setup() {
 
   Serial.println("Setting up!");
-  Serial.begin(BOUND);
+  Serial.begin(9600);
   pinMode(impact_pin, INPUT); //sets impact sensor as INPUT
   initialize_accelerometer();
 

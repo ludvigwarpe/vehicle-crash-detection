@@ -4,16 +4,16 @@
 #include <Wire.h>
 #include <stdbool.h>
 #include <math.h>
-#include <iostream>
+#include <stdint.h>
 
 
 int ADXL345 = 0x53;
 
-constexpr std::uint8_t THRESHOLD = 2u;  // will have to be fine tuned
-constexpr std::uint8_t QUEUE_CAPACITY = 6u;
-constexpr std::uint8_t ZERO = 0u;
-constexpr std::uint8_t ONE = 1u;
-constexpr std::uint8_t TWO = 2u;
+constexpr byte THRESHOLD = 2;  // will have to be fine tuned
+constexpr byte QUEUE_CAPACITY = 6;
+constexpr byte ZERO = 0;
+constexpr byte ONE = 1;
+constexpr byte TWO = 2;
 
 float x_out;
 float y_out;
@@ -26,9 +26,9 @@ struct AcceleratorData {
 };
 
 struct AcceleratorData queue[QUEUE_CAPACITY];
-std::uint8_t queue_front = 0u;
-std::uint8_t queue_rear = 0u;
-std::uint8_t queue_size = 0u;
+byte queue_front = 0;
+byte queue_rear = 0;
+byte queue_size = 0;
 
 struct AcceleratorData current_calibrated_data;
 struct AcceleratorData previous_calibrated_data;
@@ -98,7 +98,7 @@ struct AcceleratorData calibrate_data() {
   float z_sum = 0.0f;
 
 
-  for (std::uint8_t i = ZERO; i < queue_size; i++) {
+  for (byte i = ZERO; i < queue_size; i++) {
     x_sum += queue[i].x;
     y_sum += queue[i].y;
     z_sum += queue[i].z;
@@ -118,7 +118,7 @@ struct AcceleratorData calibrate_data() {
   float z_odd_sum = 0.0f;
 
 
-  for (std::uint8_t i = ZERO; i < queue_size; i++) {
+  for (byte i = ZERO; i < queue_size; i++) {
     if (i % TWO == ZERO) {
       x_even_sum += queue[i].x;
       y_even_sum += queue[i].y;
@@ -132,7 +132,7 @@ struct AcceleratorData calibrate_data() {
     }
   }
 
-  std::uint8_t half_queue_size = queue_size / TWO;
+  byte half_queue_size = queue_size / TWO;
 
   if (half_queue_size == ZERO) {
     half_queue_size = ONE;
