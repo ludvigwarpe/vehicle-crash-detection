@@ -19,11 +19,11 @@ const char topic_speed[] = "vehicle-crash-detection/sensors/gps/speed";
 
 
 // sample rate
-const byte SAMPLE_RATE = 10;
+const int SAMPLE_RATE = 10;
 
 // impact sensor
-const byte impact_pin = 3;
-byte impact_value = 0;
+const int impact_pin = 3;
+int impact_value = 0;
 
 
 // starting program
@@ -69,9 +69,8 @@ void connect_wifi() {
   Serial.println("You are now connected to the network: ");
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
-  IPAddress ip = WiFi.localIP();
   Serial.print("IP Address: ");
-  Serial.println(ip);
+  Serial.println(WiFi.localIP());
 }
 
 // initializing mqtt connection
