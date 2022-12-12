@@ -1,13 +1,11 @@
 #ifndef ACCELEROMETER_DATA_HANDLER_H
 #define ACCELEROMETER_DATA_HANDLER_H
 
-#include <Wire.h>
+#include <Arduino_LSM6DS3.h>
 #include <stdbool.h>
 #include <math.h>
-#include <stdint.h>
 
 
-int ADXL345 = 0x53;
 
 constexpr byte THRESHOLD = 2;  // will have to be fine tuned
 constexpr byte QUEUE_CAPACITY = 6;
@@ -15,14 +13,10 @@ constexpr byte ZERO = 0;
 constexpr byte ONE = 1;
 constexpr byte TWO = 2;
 
-float x_out;
-float y_out;
-float z_out;
+float x_out, y_out, z_out;
 
 struct AcceleratorData {
-  float x;
-  float y;
-  float z;
+  float x, y, z;
 };
 
 struct AcceleratorData queue[QUEUE_CAPACITY];
@@ -33,27 +27,25 @@ byte queue_size = 0;
 struct AcceleratorData current_calibrated_data;
 struct AcceleratorData previous_calibrated_data;
 
-void initialize_accelerometer() {
-  Wire.begin();
-  Wire.beginTransmission(ADXL345);
-  Wire.write(0x2D);
-  Wire.write(8);
-  Wire.endTransmission();
+void initialize_IMU() {
+
+  if (!IMU.begin()) {
+    Serial.println("Failed to initialize IMU!");
+    while (1)
+      ;
+  }
+  Serial.println("IMU initialized!");
   delay(10);
 }
 
-struct AcceleratorData get_accelerator_data() {
+struct AcceleratorData get_accelerometer_data() {
 
-  Wire.beginTransmission(ADXL345);
-  Wire.write(0x32);
-  Wire.endTransmission(false);
-  Wire.requestFrom(ADXL345, 6, true);
-  x_out = (Wire.read() | Wire.read() << 8);
-  x_out = x_out / 256;
-  y_out = (Wire.read() | Wire.read() << 8);
-  y_out = y_out / 256;
-  z_out = (Wire.read() | Wire.read() << 8);
-  z_out = z_out / 256;
+
+  if (IMU.accelerationAvailable()) {
+    IMU.readAcceleration(x_out, y_out, z_out);
+  } else {
+    Serial.println("Failed to read accelerometer!");
+  }
 
   struct AcceleratorData raw_data;
   raw_data.x = x_out;
@@ -83,11 +75,11 @@ void dequeue() {
 }
 
 float calculate_vector_sum() {
-  float x = current_calibrated_data.x - previous_calibrated_data.x;
-  float y = current_calibrated_data.y - previous_calibrated_data.y;
-  float z = current_calibrated_data.z - previous_calibrated_data.z;
+  float delt_x = current_calibrated_data.x - previous_calibrated_data.x;
+  float delt_y = current_calibrated_data.y - previous_calibrated_data.y;
+  float delt_z = current_calibrated_data.z - previous_calibrated_data.z;
 
-  return sqrt(x - y - z);
+  return sqrt(pow(delt_x, 2) + pow(delt_y, 2) + pow(delt_z, 2));
 }
 
 struct AcceleratorData calibrate_data() {
@@ -159,7 +151,7 @@ struct AcceleratorData calibrate_data() {
 
 bool has_accelerometer_collision() {
 
-  struct AcceleratorData raw_data = get_accelerator_data();
+  struct AcceleratorData raw_data = get_accelerometer_data();
 
 
   if (queue_size == QUEUE_CAPACITY) {
@@ -174,9 +166,14 @@ bool has_accelerometer_collision() {
   previous_calibrated_data = current_calibrated_data;
 
   if (vector_sum > THRESHOLD) {
+    //Serial.println("COLLISION!!!");
+    //Serial.println(vector_sum);
 
     return true;
   }
+
+  //Serial.println("YOU ARE SAFE!!!");
+  //Serial.println(vector_sum);
 
   return false;
 }
