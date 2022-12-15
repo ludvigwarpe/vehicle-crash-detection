@@ -160,8 +160,8 @@ bool has_accelerometer_collision() {
   previous_calibrated_data = current_calibrated_data;
 
   if (vector_sum > THRESHOLD) {
-    //Serial.println("COLLISION!!!");
-    //Serial.println(vector_sum);
+    Serial.print("COLLISION: ");
+    Serial.println(vector_sum);
 
     return true;
   }

@@ -14,15 +14,16 @@ WiFiClient wifiClient;
 MqttClient mqttClient(wifiClient);
 int port = 1883;
 const char broker[] = "test.mosquitto.org";
-const char topic_location[] = "vehicle-crash-detection/sensors/gps/location";
-const char topic_speed[] = "vehicle-crash-detection/sensors/gps/speed";
+const char topic_location[] = "luwa9626/vehicle-crash-detection/sensors/gps/location";
+const char topic_speed[] = "luwa9626/vehicle-crash-detection/sensors/gps/speed";
+const char topic_impact[] = "luwa9626/vehicle-crash-detection/sensors/impact";
 
 
 // sample rate
 const int SAMPLE_RATE = 10;
 
 // impact sensor
-const int impact_pin = 3;
+const int impact_pin = 2;
 int impact_value = 0;
 
 
@@ -45,14 +46,23 @@ void loop() {
   mqttClient.poll(); //keeping mqtt connection alive
 
 
-  if (has_accelerometer_collision() && has_impact_collsion()) {
-    Serial.println("Collision has occured!");
+  //if (has_accelerometer_collision() && has_impact_collsion()) {
+    //Serial.println("Collision has occured!");
     /* PUBLISH DATA TO BROKER WITH LOCATION AND SPEED*/
-    char location_temp[] = "coordinates";
-    char speed_temp[] = "speed";
+    char location_temp[] = "test - coordinates";
+    char speed_temp[] = "test - speed";
     send_message(topic_location, location_temp);
     send_message(topic_speed, speed_temp);
-  }
+    if (has_impact_collsion()){
+      Serial.println("Impact detected!");
+      send_message(topic_impact, "knock");
+    }
+    if (has_accelerometer_collision()){
+      Serial.println("Collision detected");
+      send_message(topic_impact, "collision");
+    }
+      
+  
   delay(10);
 }
 
@@ -92,14 +102,14 @@ void connect_mqtt() {
 
 // publishes message with specified topic on mqtt broker
 void send_message(char topic[], char message[]) {
-  Serial.println("Sending message to topic: ");
-  Serial.println(topic);
-  Serial.println(message);
+  //Serial.println("Sending message to topic: ");
+  //Serial.println(topic);
+  //Serial.println(message);
 
   mqttClient.beginMessage(topic);
   mqttClient.print(message);
   mqttClient.endMessage();
-  Serial.println();
+  //Serial.println();
 }
 
 
