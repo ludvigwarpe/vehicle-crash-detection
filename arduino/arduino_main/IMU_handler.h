@@ -1,5 +1,5 @@
-#ifndef ACCELEROMETER_DATA_HANDLER_H
-#define ACCELEROMETER_DATA_HANDLER_H
+#ifndef IMU_HANDLER_H
+#define IMU_HANDLER_H
 
 #include <math.h>
 #include <stdbool.h>
