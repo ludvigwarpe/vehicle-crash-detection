@@ -20,11 +20,11 @@ const char topic_impact[] = "luwa9626/vehicle-crash-detection/sensors/impact";
 
 
 // sample rate
-const int SAMPLE_RATE = 10;
+const uint8_t  SAMPLE_RATE = 10;
 
 // impact sensor
-const int impact_pin = 2;
-int impact_value = 0;
+const uint8_t impact_pin = 3;
+uint8_t impact_value = 0;
 
 
 // starting program
@@ -69,7 +69,7 @@ void loop() {
 
 // initializing wifi connection
 void connect_wifi() {
-  int status = WL_IDLE_STATUS;
+  uint8_t status = WL_IDLE_STATUS;
   while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to network: ");
     Serial.println(ssid);
