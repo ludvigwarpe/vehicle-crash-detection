@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">Android Client</string>
+    <string name="app_name">avdc iot</string>
+    <string name="connection_staus"><b>Connection:</b></string>
+    <string name="gps_location"><b>Location:</b></string>
+    <string name="gps_speed"><b>Speed:</b></string>
+    <string name="staus_ok"><b>OK</b></string>
+    <string name="staus_error"><b>ERROR</b></string>
+
 </resources>

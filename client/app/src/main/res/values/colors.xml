@@ -7,4 +7,16 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="colorPrimary">#FFC107</color>
+    <color name="colorPrimaryDark">#DAA407</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="black_alpha">#000000</color>
+    <color name="text_box_background">#E7E7E7</color>
+    <color name="blue_text">#0166ff</color>
+    <color name="title_bar_color">#EB164E</color>
+    <color name="activitybackground">#FFF5B8</color>
+    <color name="activitybutton">#FFE06E</color>
+    <color name="activityfont">#3f3f3f</color>
+    <color name="light_cyan">#7A8B8B</color>
+    <color name="dark_cyan">#6D7D7D</color>
 </resources>

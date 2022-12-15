@@ -1,7 +1,10 @@
 package com.example.androidclient;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.provider.CalendarContract;
 import android.util.Log;
+import android.widget.TextView;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -14,36 +17,45 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class MqttController {
 
-    //TODO: Fixa en egen broker? Kolla här: https://wildanmsyah.wordpress.com/2017/05/11/mqtt-android-client-tutorial/
     private static final String SERVER_URI = "tcp://test.mosquitto.org:1883";
     private static final String TAG = "MqttController";
-    private static final String CLIENT_ID = "ExampleAndroidClient";
-    private MqttAndroidClient client;
+    private static final String SENSORS_URI = "luwa9626/vehicle-crash-detection/sensors/";
+    private static final String SENSOR_IMPACT = "impact";
+    private static  final String GPS_LOCATION = "gps/location";
+    private static  final String GPS_SPEED = "gps/speed";
 
-    public MqttController(Context context) {
-        String clientId = MqttClient.generateClientId();
-        System.out.println("CLIENT ID " + clientId);
-        client = new MqttAndroidClient(context, SERVER_URI, clientId);
+    private MqttAndroidClient client;
+    private Context context;
+
+
+    public MqttController(Context context, TextView txv_connection) {
+        this.context = context;
+
+        connect();
+
 
         client.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
                 if (reconnect) {
                     System.out.println("Reconnected to : " + serverURI);
-                    //TODO: subscriba till våra kommande sensorer
-                    
+                    txv_connection.setText("OK");                   //TEST
                     // Re-subscribe as we lost it due to new session
-                    //subscribe(SENSORS_URI + SENSOR_LUX);
-                    //subscribe(SENSORS_URI + SENSOR_PROXIMITY);
+                    subscribe(SENSORS_URI + SENSOR_IMPACT);
+                    subscribe(SENSORS_URI + GPS_LOCATION);
+                    subscribe(SENSORS_URI + GPS_SPEED);
                 } else {
                     System.out.println("Connected to: " + serverURI);
-                    //subscribe(SENSORS_URI + SENSOR_LUX);
-                    //subscribe(SENSORS_URI + SENSOR_PROXIMITY);
+                    txv_connection.setText("OK");           //TEST
+                    subscribe(SENSORS_URI + SENSOR_IMPACT);
+                    subscribe(SENSORS_URI + GPS_LOCATION);
+                    subscribe(SENSORS_URI + GPS_SPEED);
                 }
             }
 
             @Override
             public void connectionLost(Throwable cause) {
+                txv_connection.setText("ERROR");//TEST
                 System.out.println("The Connection was lost.");
             }
 
@@ -51,27 +63,28 @@ public class MqttController {
             public void messageArrived(String topic, MqttMessage message) throws
                     Exception {
                 //TODO: Behandla meddeleandet från kommande sensorer
-//                if (topic.equals((SENSORS_URI + SENSOR_LUX))) {
-//                    String newMessage = new String(message.getPayload());
-//                    System.out.println("Incoming message: " + newMessage);
-//                    txv_light.setText(newMessage);
-//                } else if (topic.equals((SENSORS_URI + SENSOR_PROXIMITY))) {
-//                    String newMessage = new String(message.getPayload());
-//                    System.out.println("Incoming message: " + newMessage);
-//                    txv_proximity.setText(newMessage);
-//                }
-
+                if (topic.equals((SENSORS_URI + SENSOR_IMPACT))) {
+                    String newMessage = new String(message.getPayload());
+                    System.out.println("Incoming message: " + newMessage);
+                }else if (topic.equals((SENSORS_URI + GPS_LOCATION))){
+                    String newMessage = new String(message.getPayload());
+                    System.out.println("Incoming message: " + newMessage);
+                }else if (topic.equals((SENSORS_URI + GPS_SPEED))){
+                    String newMessage = new String(message.getPayload());
+                    System.out.println("Incoming message: " + newMessage);
+                }
             }
 
             @Override
             public void deliveryComplete(IMqttDeliveryToken token) {
             }
         });
-
-        connect();
     }
 
     private void connect() {
+        String clientId = MqttClient.generateClientId();
+        System.out.println("CLIENT ID " + clientId);
+        client = new MqttAndroidClient(context, SERVER_URI, clientId);
 
         try {
             IMqttToken token = client.connect();
@@ -116,7 +129,6 @@ public class MqttController {
                     System.out.println("Failed to subscribe to topic: " + topic);
                     // The subscription could not be performed, maybe the user was not
                     // authorized to subscribe on the specified topic e.g. using wildcards
-
                 }
             });
         } catch (MqttException e) {
