@@ -17,6 +17,7 @@ const char broker[] = "test.mosquitto.org";
 const char topic_location[] = "luwa9626/vehicle-crash-detection/sensors/gps/location";
 const char topic_speed[] = "luwa9626/vehicle-crash-detection/sensors/gps/speed";
 const char topic_impact[] = "luwa9626/vehicle-crash-detection/sensors/impact";
+const char topic_flipped[] = "luwa9626/vehicle-crash-detection/sensors/flipped";
 
 
 // sample rate
@@ -35,31 +36,36 @@ void setup() {
   connect_wifi();
   connect_mqtt();
   initialize_IMU();
+  calculate_IMU_error();
   pinMode(impact_pin, INPUT);  //sets impact sensor as INPUT
   delay(1000);
 }
-
 // main program loop
 void loop() {
 
   
   mqttClient.poll(); //keeping mqtt connection alive
 
-
-  
-    //Serial.println("Collision has occured!");
     /* PUBLISH DATA TO BROKER WITH LOCATION AND SPEED*/
-    char location_temp[] = "test - coordinates";
-    char speed_temp[] = "test - speed";
+    char location_temp[] = "59.31626265649651, 18.091590409027457";
+    char speed_temp[] = "120 km/h";
     send_message(topic_location, location_temp);
     send_message(topic_speed, speed_temp);
+
     if (has_impact_collsion()){
       Serial.println("Impact detected!");
       send_message(topic_impact, "knock");
+      delay(1000);
     }
     if (has_accelerometer_collision()){
       Serial.println("Collision detected");
       send_message(topic_impact, "collision");
+      delay(1000);
+    }
+    if (has_flipped()){
+      Serial.println("Car has flipped!");
+      send_message(topic_impact, "flipped"); //topic_flipped
+      delay(1000);
     }
       
   

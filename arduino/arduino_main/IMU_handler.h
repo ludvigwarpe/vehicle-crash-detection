@@ -5,40 +5,44 @@
 #include <stdbool.h>
 
 
-struct AcceleratorData {
+struct INO_Data {
   float x, y, z;
 };
 
 extern const uint8_t THRESHOLD;
 extern const uint8_t QUEUE_CAPACITY;
-extern const uint8_t ZERO;
-extern const uint8_t ONE;
-extern const uint8_t TWO;
 
-extern float x_out, y_out, z_out;
+extern float x_acc_error, y_acc_error, z_acc_error;
+extern float x_gyr_error, y_gyr_error, z_gyr_error;
 
-extern struct AcceleratorData queue[];
+extern float x_acc, y_acc, z_acc;
+extern float x_gyr, y_gyr, z_gyr;
+
+extern struct INO_Data queue[];
 extern uint8_t queue_front;
 extern uint8_t queue_rear;
 extern uint8_t queue_size;
 
-extern struct AcceleratorData current_calibrated_data;
-extern struct AcceleratorData previous_calibrated_data;
+extern struct INO_Data current_calibrated_data;
+extern struct INO_Data previous_calibrated_data;
 
 void initialize_IMU();
+void calculate_IMU_error();
 
-struct AcceleratorData get_accelerometer_data();
+struct INO_Data get_accelerometer_data();
+struct INO_Data get_gyroscope_data();
 
-void enqueue(struct AcceleratorData data);
+void enqueue(struct INO_Data data);
 
 void dequeue();
 
 float calculate_vector_sum();
 
-struct AcceleratorData calibrate_data();
+struct INO_Data calibrate_data();
 
 
 bool has_accelerometer_collision();
+bool has_flipped();
 
 
 #endif
