@@ -1,6 +1,6 @@
 
 #include <Arduino_LSM6DS3.h>
-#include "accelerometer_data_handler.h"
+#include "IMU_handler.h"
 
 
 const uint8_t THRESHOLD = 2;  // will have to be fine tuned

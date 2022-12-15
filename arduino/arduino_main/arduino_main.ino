@@ -3,7 +3,7 @@
 #include <WiFiNINA.h>
 #include <ArduinoMqttClient.h>
 #include "arduino_secrets.h"
-#include "accelerometer_data_handler.h"
+#include "IMU_handler.h"
 
 // credentials for wifi
 char ssid[] = SECRET_SSID;
@@ -46,7 +46,7 @@ void loop() {
   mqttClient.poll(); //keeping mqtt connection alive
 
 
-  //if (has_accelerometer_collision() && has_impact_collsion()) {
+  
     //Serial.println("Collision has occured!");
     /* PUBLISH DATA TO BROKER WITH LOCATION AND SPEED*/
     char location_temp[] = "test - coordinates";
