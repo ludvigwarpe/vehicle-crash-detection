@@ -36,7 +36,6 @@ void setup() {
   connect_wifi();
   connect_mqtt();
   initialize_IMU();
-  calculate_IMU_error();
   pinMode(impact_pin, INPUT);  //sets impact sensor as INPUT
   delay(1000);
 }

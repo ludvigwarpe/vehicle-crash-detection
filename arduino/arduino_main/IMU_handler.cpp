@@ -76,6 +76,7 @@ void initialize_IMU() {
     Serial.println("Failed to initialize IMU!");
     delay(5000);
   }
+  calculate_IMU_error();
   Serial.println("IMU initialized!");
 }
 
@@ -129,7 +130,7 @@ float calculate_vector_sum() {
   float delt_y = current_calibrated_data.y - previous_calibrated_data.y;
   float delt_z = current_calibrated_data.z - previous_calibrated_data.z;
 
-  return sqrt(pow(delt_x, 2) + pow(delt_y, 2) + pow(delt_z, 2));
+  return sqrt(delt_x * delt_x + delt_y * delt_y + delt_z * delt_z);
 }
 
 struct INO_Data calibrate_data() {
@@ -228,6 +229,7 @@ bool has_accelerometer_collision() {
 bool has_flipped(){
   struct INO_Data data = get_gyroscope_data();
   
+   
   if (data.x > 800 || data.x < -800 || data.y > 500 || data.y < -500){
     Serial.println("Gyroscope:  ");
     Serial.println(data.x);
