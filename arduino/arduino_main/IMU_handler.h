@@ -6,14 +6,14 @@
 
 
 struct INO_Data {
-  float x, y, z;
+  double x, y, z;
 };
 
 extern const uint8_t THRESHOLD;
 extern const uint8_t QUEUE_CAPACITY;
 
-extern float x_acc_error, y_acc_error, z_acc_error;
-extern float x_gyr_error, y_gyr_error, z_gyr_error;
+extern double x_acc_error, y_acc_error, z_acc_error;
+extern double x_gyr_error, y_gyr_error, z_gyr_error;
 
 extern float x_acc, y_acc, z_acc;
 extern float x_gyr, y_gyr, z_gyr;
@@ -36,7 +36,7 @@ void enqueue(struct INO_Data data);
 
 void dequeue();
 
-float calculate_vector_sum();
+double calculate_vector_sum();
 
 struct INO_Data calibrate_data();
 

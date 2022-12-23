@@ -6,13 +6,13 @@
 const uint8_t THRESHOLD = 2;  // will have to be fine tuned
 const uint8_t QUEUE_CAPACITY = 6;
 
-float x_acc_error = 0.0f;
-float y_acc_error = 0.0f;
-float z_acc_error = 0.0f;
+double x_acc_error = 0.0;
+double y_acc_error = 0.0;
+double z_acc_error = 0.0;
 
-float x_gyr_error = 0.0f;
-float y_gyr_error = 0.0f;
-float z_gyr_error = 0.0f;
+double x_gyr_error = 0.0;
+double y_gyr_error = 0.0;
+double z_gyr_error = 0.0;
 
 float x_acc = 0.0f;
 float y_acc = 0.0f;
@@ -30,20 +30,17 @@ uint8_t queue_size = 0;
 struct INO_Data current_calibrated_data;
 struct INO_Data previous_calibrated_data;
 
-void read_accelerometer(){
+void read_accelerometer() {
+
   if (IMU.accelerationAvailable()) {
     IMU.readAcceleration(x_acc, y_acc, z_acc);
-  } else {
-    Serial.println("Failed to read accelerometer!");
-  }
+  } 
 }
 
-void read_gyroscope(){
+void read_gyroscope() {
   if (IMU.gyroscopeAvailable()) {
     IMU.readGyroscope(x_gyr, y_gyr, z_gyr);
-  } else {
-    Serial.println("Failed to read gyroscope!");
-  }
+  } 
 }
 
 void calculate_IMU_error() {
@@ -67,7 +64,6 @@ void calculate_IMU_error() {
   x_gyr_error /= 200;
   y_gyr_error /= 200;
   z_gyr_error /= 200;
-  
 }
 
 void initialize_IMU() {
@@ -125,10 +121,10 @@ void dequeue() {
   }
 }
 
-float calculate_vector_sum() {
-  float delt_x = current_calibrated_data.x - previous_calibrated_data.x;
-  float delt_y = current_calibrated_data.y - previous_calibrated_data.y;
-  float delt_z = current_calibrated_data.z - previous_calibrated_data.z;
+double calculate_vector_sum() {
+  double delt_x = current_calibrated_data.x - previous_calibrated_data.x;
+  double delt_y = current_calibrated_data.y - previous_calibrated_data.y;
+  double delt_z = current_calibrated_data.z - previous_calibrated_data.z;
 
   return sqrt(delt_x * delt_x + delt_y * delt_y + delt_z * delt_z);
 }
@@ -136,9 +132,9 @@ float calculate_vector_sum() {
 struct INO_Data calibrate_data() {
 
 
-  float x_sum = 0.0f;
-  float y_sum = 0.0f;
-  float z_sum = 0.0f;
+  double x_sum = 0.0;
+  double y_sum = 0.0;
+  double z_sum = 0.0;
 
 
   for (uint8_t i = 0; i < queue_size; i++) {
@@ -147,18 +143,18 @@ struct INO_Data calibrate_data() {
     z_sum += queue[i].z;
   }
 
-  float x1_avg = x_sum / queue_size;
-  float y1_avg = y_sum / queue_size;
-  float z1_avg = z_sum / queue_size;
+  double x1_avg = x_sum / queue_size;
+  double y1_avg = y_sum / queue_size;
+  double z1_avg = z_sum / queue_size;
 
-  float x_even_sum = 0.0f;
-  float x_odd_sum = 0.0f;
+  double x_even_sum = 0.0f;
+  double x_odd_sum = 0.0f;
 
-  float y_even_sum = 0.0f;
-  float y_odd_sum = 0.0f;
+  double y_even_sum = 0.0f;
+  double y_odd_sum = 0.0f;
 
-  float z_even_sum = 0.0f;
-  float z_odd_sum = 0.0f;
+  double z_even_sum = 0.0f;
+  double z_odd_sum = 0.0f;
 
 
   for (uint8_t i = 0; i < queue_size; i++) {
@@ -181,13 +177,13 @@ struct INO_Data calibrate_data() {
     half_queue_size = 1;
   }
 
-  float x2_avg = (x_odd_sum / half_queue_size) + (x_even_sum / half_queue_size);
-  float y2_avg = (y_odd_sum / half_queue_size) + (y_even_sum / half_queue_size);
-  float z2_avg = (z_odd_sum / half_queue_size) + (z_even_sum / half_queue_size);
+  double x2_avg = (x_odd_sum / half_queue_size) + (x_even_sum / half_queue_size);
+  double y2_avg = (y_odd_sum / half_queue_size) + (y_even_sum / half_queue_size);
+  double z2_avg = (z_odd_sum / half_queue_size) + (z_even_sum / half_queue_size);
 
-  float x = (x1_avg + x2_avg) / 2;
-  float y = (y1_avg + y2_avg) / 2;
-  float z = (z1_avg + z2_avg) / 2;
+  double x = (x1_avg + x2_avg) / 2;
+  double y = (y1_avg + y2_avg) / 2;
+  double z = (z1_avg + z2_avg) / 2;
 
   struct INO_Data calibrated_data;
 
@@ -212,7 +208,7 @@ bool has_accelerometer_collision() {
 
 
   current_calibrated_data = calibrate_data();
-  float vector_sum = calculate_vector_sum();
+  double vector_sum = calculate_vector_sum();
 
   previous_calibrated_data = current_calibrated_data;
 
@@ -226,11 +222,11 @@ bool has_accelerometer_collision() {
   return false;
 }
 
-bool has_flipped(){
+bool has_flipped() {
   struct INO_Data data = get_gyroscope_data();
-  
-   
-  if (data.x > 800 || data.x < -800 || data.y > 500 || data.y < -500){
+
+
+  if (data.x > 800 || data.x < -800 || data.y > 500 || data.y < -500) {
     Serial.println("Gyroscope:  ");
     Serial.println(data.x);
     Serial.println(data.y);
@@ -240,5 +236,4 @@ bool has_flipped(){
     return true;
   }
   return false;
-
 }

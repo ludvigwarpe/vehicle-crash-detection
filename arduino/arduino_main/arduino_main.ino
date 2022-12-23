@@ -19,56 +19,66 @@ const char topic_speed[] = "luwa9626/vehicle-crash-detection/sensors/gps/speed";
 const char topic_impact[] = "luwa9626/vehicle-crash-detection/sensors/impact";
 const char topic_flipped[] = "luwa9626/vehicle-crash-detection/sensors/flipped";
 
+//temporary mock values
+const char location_temp[] = "59.31626265649651, 18.091590409027457";
+const char speed_temp[] = "120 km/h";
+
 
 // sample rate
-const uint8_t  SAMPLE_RATE = 10;
+const uint8_t SAMPLE_RATE = 10;
 
 // impact sensor
-const uint8_t impact_pin = 3;
-uint8_t impact_value = 0;
+const int impact_pin = 8;
+
+// used for delay
+unsigned long current_time_millis;
+unsigned long previous_time_millis;
 
 
 // starting program
 void setup() {
 
+
   Serial.begin(9600);
   Serial.println("Starting program!");
+  pinMode(impact_pin, INPUT);
   connect_wifi();
   connect_mqtt();
   initialize_IMU();
-  pinMode(impact_pin, INPUT);  //sets impact sensor as INPUT
   delay(1000);
 }
 // main program loop
 void loop() {
 
-  
-  mqttClient.poll(); //keeping mqtt connection alive
+  current_time_millis = millis();
+
+  if (current_time_millis - previous_time_millis >= SAMPLE_RATE) {
+
+    mqttClient.poll();  //keeping mqtt connection alive
 
     /* PUBLISH DATA TO BROKER WITH LOCATION AND SPEED*/
-    char location_temp[] = "59.31626265649651, 18.091590409027457";
-    char speed_temp[] = "120 km/h";
     send_message(topic_location, location_temp);
     send_message(topic_speed, speed_temp);
 
-    if (has_impact_collsion()){
-      Serial.println("Impact detected!");
-      send_message(topic_impact, "knock");
-      delay(1000);
-    }
-    if (has_accelerometer_collision()){
+    if (has_accelerometer_collision()) {
       Serial.println("Collision detected");
       send_message(topic_impact, "collision");
-      delay(1000);
+      //delay(1000);
     }
-    if (has_flipped()){
+    if (has_flipped()) {
       Serial.println("Car has flipped!");
-      send_message(topic_impact, "flipped"); //topic_flipped
-      delay(1000);
+      send_message(topic_impact, "flipped");
+      //delay(1000);
     }
-      
-  
-  delay(10);
+    previous_time_millis = current_time_millis;
+  }
+
+  if (has_impact_collsion()) {
+    Serial.println("Impact detected!");
+    send_message(topic_impact, "knock");
+    //delay(1000);
+  }
+
 }
 
 
@@ -120,6 +130,6 @@ void send_message(char topic[], char message[]) {
 
 // reads the impact sensor for collision
 bool has_impact_collsion() {
-  impact_value = digitalRead(impact_pin);
-  return impact_value == LOW;
+
+  return digitalRead(impact_pin) == LOW;
 }
