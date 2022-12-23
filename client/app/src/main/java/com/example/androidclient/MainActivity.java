@@ -19,14 +19,14 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private static final String SERVER_URI = "tcp://test.mosquitto.org:1883";
     private static final String TAG = "MqttController";
     private static final String SENSORS_URI = "luwa9626/vehicle-crash-detection/sensors/";
     private static final String SENSOR_IMPACT = "impact";
-    private static  final String GPS_LOCATION = "gps/location";
-    private static  final String GPS_SPEED = "gps/speed";
+    private static final String GPS_LOCATION = "gps/location";
+    private static final String GPS_SPEED = "gps/speed";
 
     private MqttAndroidClient client;
 
@@ -87,18 +87,17 @@ public class MainActivity extends AppCompatActivity{
                     carFlipped = newMessage;
                     buildAlertDialog();
                     alert.show();
-                    //Toast.makeText(getApplicationContext(),newMessage,Toast.LENGTH_SHORT).show(); //SHOWS QUICK POP-UP ON SCREEN IF IMPACT HAPPENS
                     System.out.println("Incoming message: " + newMessage);
-                }else if (topic.equals((SENSORS_URI + GPS_LOCATION))){
+                } else if (topic.equals((SENSORS_URI + GPS_LOCATION))) {
                     String newMessage = new String(message.getPayload());
                     currentLocation = newMessage;
                     txv_location.setText(newMessage);
-                    //System.out.println("Incoming message: " + newMessage);
-                }else if (topic.equals((SENSORS_URI + GPS_SPEED))){
+                    System.out.println("Incoming message: " + newMessage);
+                } else if (topic.equals((SENSORS_URI + GPS_SPEED))) {
                     String newMessage = new String(message.getPayload());
                     currentSpeed = newMessage;
                     txv_speed.setText(newMessage);
-                    //System.out.println("Incoming message: " + newMessage);
+                    System.out.println("Incoming message: " + newMessage);
                 }
             }
 
@@ -106,12 +105,6 @@ public class MainActivity extends AppCompatActivity{
             public void deliveryComplete(IMqttDeliveryToken token) {
             }
         });
-
-
-
-        //mqttController = new MqttController(this.getApplicationContext(), txv_connection);
-
-
     }
 
     private void connect() {
@@ -172,20 +165,20 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    private void  buildAlertDialog(){
+    private void buildAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        String msg = "Collision detected\n" + "\nLocation:" + currentLocation + "\nSpeed:" + currentSpeed + "\n" + carFlipped + "\nEMS will be notified.";
+        String msg = "Collision detected\n" + "\nLocation:" + currentLocation + "\nSpeed:" + currentSpeed + "\n" + "\nEMS will be notified.";
         builder.setMessage(msg);
         System.out.println(msg);
         builder.setTitle("VEHICLE COLLISION");
 
         builder.setPositiveButton("OK", (DialogInterface.OnClickListener) (dialog, which) -> {
             dialog.dismiss();
-            });
+        });
 
         builder.setNegativeButton("CANCEL", (DialogInterface.OnClickListener) (dialog, which) -> {
             dialog.cancel();
-            });
+        });
 
         alert = builder.create();
 
