@@ -25,17 +25,20 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MqttController";
     private static final String SENSORS_URI = "luwa9626/vehicle-crash-detection/sensors/";
     private static final String SENSOR_IMPACT = "impact";
-    private static final String GPS_LOCATION = "gps/location";
+    private static final String GPS_LATITUDE = "gps/latitude";
+    private static final String GPS_LONGITUDE = "gps/longitude";
     private static final String GPS_SPEED = "gps/speed";
 
     private MqttAndroidClient client;
 
     private AlertDialog alert;
     private TextView txv_connection;
-    private TextView txv_location;
+    private TextView txv_latitude;
+    private TextView txv_longitude;
     private TextView txv_speed;
 
-    private String currentLocation = "";
+    private String currentLatitude = "";
+    private String currentLongitude = "";
     private String currentSpeed = "";
     private String carFlipped = "";
 
@@ -46,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         txv_connection = (TextView) findViewById(R.id.txv_connectionValue);
-        txv_location = (TextView) findViewById(R.id.txv_locationValue);
+        txv_latitude = (TextView) findViewById(R.id.txv_latitudeValue);
+        txv_longitude = (TextView) findViewById(R.id.txv_longitudeValue);
         txv_speed = (TextView) findViewById(R.id.txv_speedValue);
 
         connect();
@@ -60,14 +64,16 @@ public class MainActivity extends AppCompatActivity {
                     txv_connection.setTextColor(Color.GREEN);
                     // Re-subscribe as we lost it due to new session
                     subscribe(SENSORS_URI + SENSOR_IMPACT);
-                    subscribe(SENSORS_URI + GPS_LOCATION);
+                    subscribe(SENSORS_URI + GPS_LATITUDE);
+                    subscribe(SENSORS_URI + GPS_LONGITUDE);
                     subscribe(SENSORS_URI + GPS_SPEED);
                 } else {
                     System.out.println("Connected to: " + serverURI);
                     txv_connection.setText("OK");
                     txv_connection.setTextColor(Color.GREEN);
                     subscribe(SENSORS_URI + SENSOR_IMPACT);
-                    subscribe(SENSORS_URI + GPS_LOCATION);
+                    subscribe(SENSORS_URI + GPS_LATITUDE);
+                    subscribe(SENSORS_URI + GPS_LONGITUDE);
                     subscribe(SENSORS_URI + GPS_SPEED);
                 }
             }
@@ -88,16 +94,25 @@ public class MainActivity extends AppCompatActivity {
                     buildAlertDialog();
                     alert.show();
                     System.out.println("Incoming message: " + newMessage);
-                } else if (topic.equals((SENSORS_URI + GPS_LOCATION))) {
+                }
+                if (topic.equals((SENSORS_URI + GPS_LATITUDE))) {
                     String newMessage = new String(message.getPayload());
-                    currentLocation = newMessage;
-                    txv_location.setText(newMessage);
-                    System.out.println("Incoming message: " + newMessage);
-                } else if (topic.equals((SENSORS_URI + GPS_SPEED))) {
+                    currentLatitude = newMessage;
+                    txv_latitude.setText(newMessage);
+                    //System.out.println("Incoming message: " + newMessage);
+                }
+                if (topic.equals((SENSORS_URI + GPS_LONGITUDE))) {
+                    String newMessage = new String(message.getPayload());
+                    currentLongitude = newMessage;
+                    txv_longitude.setText(newMessage);
+                    //System.out.println("Incoming message: " + newMessage);
+                }
+
+                if (topic.equals((SENSORS_URI + GPS_SPEED))) {
                     String newMessage = new String(message.getPayload());
                     currentSpeed = newMessage;
                     txv_speed.setText(newMessage);
-                    System.out.println("Incoming message: " + newMessage);
+                    //System.out.println("Incoming message: " + newMessage);
                 }
             }
 
@@ -167,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void buildAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        String msg = "Collision detected\n" + "\nLocation:" + currentLocation + "\nSpeed:" + currentSpeed + "\n" + "\nEMS will be notified.";
+        String msg = "Collision detected\n" + "\nLocation:" + currentLatitude + "\nSpeed:" + currentSpeed + "\n" + "\nEMS will be notified.";
         builder.setMessage(msg);
         System.out.println(msg);
         builder.setTitle("VEHICLE COLLISION");
