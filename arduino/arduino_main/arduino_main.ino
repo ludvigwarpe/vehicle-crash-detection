@@ -24,7 +24,7 @@ const char topic_flipped[] = "luwa9626/vehicle-crash-detection/sensors/flipped";
 const uint8_t  SAMPLE_RATE = 10;
 
 // impact sensor
-const uint8_t impact_pin = 3;
+uint8_t impact_pin = 3;
 uint8_t impact_value = 0;
 
 
