@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void buildAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        String msg = "Collision detected\n" + "\nLocation:" + currentLatitude + "\nSpeed:" + currentSpeed + "\n" + "\nEMS will be notified.";
+        String msg = "Collision detected\n" + "\nLATITUDE:" + currentLatitude + "\nLONGITUDE" + currentLongitude +"\n SPEED:" + currentSpeed + " km/h" + "\n" + "\nEMS will be notified.";
         builder.setMessage(msg);
         System.out.println(msg);
         builder.setTitle("VEHICLE COLLISION");
