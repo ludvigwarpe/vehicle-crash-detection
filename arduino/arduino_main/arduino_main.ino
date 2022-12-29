@@ -62,6 +62,16 @@ void setup() {
 // main program loop
 void loop() {
 
+  if (!mqttClient.connected()){
+    Serial.println("Reconnecting MQTT broker!");
+    connect_mqtt();
+  }
+
+  if (WiFi.status() != WL_CONNECTED){
+    Serial.println("Reconnecting WiFi!");
+    WiFi.disconnect();
+    connect_wifi();
+  }
 
   mqttClient.poll();  //keeping mqtt connection alive
   current_time_millis = millis();
@@ -113,6 +123,7 @@ void connect_wifi() {
     Serial.print("Attempting to connect to network: ");
     Serial.println(ssid);
     status = WiFi.begin(ssid, pass);
+    Serial.println(status);
     delay(5000);
   }
   Serial.println("You are now connected to the network: ");
@@ -127,12 +138,10 @@ void connect_mqtt() {
   Serial.print("Attempting to connect to the MQTT broker: ");
   Serial.println(broker);
 
-  if (!mqttClient.connect(broker, port)) {
+  while (!mqttClient.connect(broker, port)) {
     Serial.print("MQTT connection failed! Error code: ");
     Serial.println(mqttClient.connectError());
-
-    while (1)
-      ;
+    delay(5000);
   }
 
   Serial.println("You're connected to the MQTT broker!");
