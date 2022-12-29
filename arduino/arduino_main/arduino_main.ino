@@ -95,9 +95,9 @@ void loop() {
     send_message(topic_longitude, current_long);
     send_message(topic_speed, current_speed);
     /*Serial.print("LAT= ");
-    Serial.print(current_lat);
+    Serial.print(current_lat, 6);
     Serial.print(" LONG= ");
-    Serial.print(current_long);
+    Serial.print(current_long, 6);
     Serial.print(" SPD= ");
     Serial.println(current_speed);*/
   }
@@ -140,20 +140,15 @@ void connect_mqtt() {
 
 // publishes message with specified topic on mqtt broker
 void send_message(char topic[], char message[]) {
-  //Serial.println("Sending message to topic: ");
-  //Serial.println(topic);
-  //Serial.println(message);
-
   mqttClient.beginMessage(topic);
   mqttClient.print(message);
   mqttClient.endMessage();
-  //Serial.println();
 }
 
 //publishes gps data
 void send_message(char topic[], float message) {
   mqttClient.beginMessage(topic);
-  mqttClient.print(message);
+  mqttClient.print(message, 6);
   mqttClient.endMessage();
 }
 
@@ -179,6 +174,7 @@ void get_location_data(){
   gps.f_get_position(&current_lat, &current_long, &age);
   current_lat = current_lat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : current_lat;
   current_long = current_long == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : current_long;
+  
 }
 
 void get_speed_data(){
