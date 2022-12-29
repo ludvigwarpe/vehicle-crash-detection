@@ -9,7 +9,7 @@ struct INO_Data {
   double x, y, z;
 };
 
-extern const uint8_t THRESHOLD;
+extern const float THRESHOLD;
 extern const uint8_t QUEUE_CAPACITY;
 
 extern double x_acc_error, y_acc_error, z_acc_error;

@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private String currentLongitude = "";
     private String currentSpeed = "";
     private String carFlipped = "";
+    private boolean hasCollided = false;
+    private long prevTime;
 
 
     @Override
@@ -91,9 +93,20 @@ public class MainActivity extends AppCompatActivity {
                 if (topic.equals((SENSORS_URI + SENSOR_IMPACT))) {
                     String newMessage = new String(message.getPayload());
                     carFlipped = newMessage;
-                    buildAlertDialog();
-                    alert.show();
+
+                    //Shows alert dialog only once or when more then 3 seconds have passed
+                    if (!hasCollided) {
+                        hasCollided = true;
+                        buildAlertDialog();
+                        alert.show();
+                    }
                     System.out.println("Incoming message: " + newMessage);
+
+                    long currentTimeMillis = System.currentTimeMillis();
+                    if (currentTimeMillis - prevTime >= 3000){
+                        hasCollided = false;
+                        prevTime = currentTimeMillis;
+                    }
                 }
                 if (topic.equals((SENSORS_URI + GPS_LATITUDE))) {
                     String newMessage = new String(message.getPayload());

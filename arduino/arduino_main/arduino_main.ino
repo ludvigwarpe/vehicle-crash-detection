@@ -62,11 +62,12 @@ void setup() {
 // main program loop
 void loop() {
 
+
+  mqttClient.poll();  //keeping mqtt connection alive
   current_time_millis = millis();
 
   if (current_time_millis - previous_time_millis >= SAMPLE_RATE) {
 
-    mqttClient.poll();  //keeping mqtt connection alive
     scan_gps_data(); //Scans and encodes gps data from software serial
   
     if (has_accelerometer_collision()) {

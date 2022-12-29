@@ -3,7 +3,7 @@
 #include "IMU_handler.h"
 
 
-const uint8_t THRESHOLD = 2;  // will have to be fine tuned
+const float THRESHOLD = 1.5;  // will have to be fine tuned
 const uint8_t QUEUE_CAPACITY = 6;
 
 double x_acc_error = 0.0;
@@ -218,6 +218,7 @@ bool has_accelerometer_collision() {
 
     return true;
   }
+  
 
   return false;
 }
@@ -226,7 +227,7 @@ bool has_flipped() {
   struct INO_Data data = get_gyroscope_data();
 
 
-  if (data.x > 800 || data.x < -800 || data.y > 500 || data.y < -500) {
+  if (data.x > 550 || data.x < -550 || data.y > 450 || data.y < -450) {
     Serial.println("Gyroscope:  ");
     Serial.println(data.x);
     Serial.println(data.y);
