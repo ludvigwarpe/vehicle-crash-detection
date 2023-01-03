@@ -7,7 +7,7 @@
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
 
-// credentials for wifi
+/*---- credentials for wifi ----*/
 char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
 
@@ -20,7 +20,6 @@ const char topic_latitude[] = "luwa9626/vehicle-crash-detection/sensors/gps/lati
 const char topic_longitude[] = "luwa9626/vehicle-crash-detection/sensors/gps/longitude";
 const char topic_speed[] = "luwa9626/vehicle-crash-detection/sensors/gps/speed";
 const char topic_impact[] = "luwa9626/vehicle-crash-detection/sensors/impact";
-const char topic_flipped[] = "luwa9626/vehicle-crash-detection/sensors/flipped";
 
 //GPS
 TinyGPS gps;
@@ -29,10 +28,6 @@ bool new_gps_data = false;
 float current_lat;
 float current_long;
 float current_speed;
-
-//temporary mock values
-const char location_temp[] = "59.31626265649651, 18.091590409027457";
-const char speed_temp[] = "120 km/h";
 
 
 // sample rate
@@ -62,8 +57,18 @@ void setup() {
 // main program loop
 void loop() {
 
+  if (!mqttClient.connected()){
+    Serial.println("Reconnecting MQTT broker!");
+    connect_mqtt();
+  }
 
-  mqttClient.poll();  //keeping mqtt connection alive
+  if (WiFi.status() != WL_CONNECTED){
+    Serial.println("Reconnecting WiFi!");
+    WiFi.disconnect();
+    connect_wifi();
+  }
+
+  mqttClient.poll();
   current_time_millis = millis();
 
   if (current_time_millis - previous_time_millis >= SAMPLE_RATE) {
@@ -73,12 +78,11 @@ void loop() {
     if (has_accelerometer_collision()) {
       Serial.println("Collision detected");
       send_message(topic_impact, "collision");
-      //delay(1000);
     }
     if (has_flipped()) {
       Serial.println("Car has flipped!");
       send_message(topic_impact, "flipped");
-      //delay(1000);
+      delay(1000);
     }
     previous_time_millis = current_time_millis;
   }
@@ -86,7 +90,6 @@ void loop() {
   if (has_impact_collsion()) {
     Serial.println("Impact detected!");
     send_message(topic_impact, "knock");
-    //delay(1000);
   }
 
   if(new_gps_data){
@@ -95,12 +98,6 @@ void loop() {
     send_message(topic_latitude, current_lat);
     send_message(topic_longitude, current_long);
     send_message(topic_speed, current_speed);
-    /*Serial.print("LAT= ");
-    Serial.print(current_lat, 6);
-    Serial.print(" LONG= ");
-    Serial.print(current_long, 6);
-    Serial.print(" SPD= ");
-    Serial.println(current_speed);*/
   }
 
 }
@@ -113,6 +110,7 @@ void connect_wifi() {
     Serial.print("Attempting to connect to network: ");
     Serial.println(ssid);
     status = WiFi.begin(ssid, pass);
+    Serial.println(status);
     delay(5000);
   }
   Serial.println("You are now connected to the network: ");
@@ -127,12 +125,10 @@ void connect_mqtt() {
   Serial.print("Attempting to connect to the MQTT broker: ");
   Serial.println(broker);
 
-  if (!mqttClient.connect(broker, port)) {
+  while (!mqttClient.connect(broker, port)) {
     Serial.print("MQTT connection failed! Error code: ");
     Serial.println(mqttClient.connectError());
-
-    while (1)
-      ;
+    delay(5000);
   }
 
   Serial.println("You're connected to the MQTT broker!");
