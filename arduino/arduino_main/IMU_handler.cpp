@@ -3,24 +3,16 @@
 #include "IMU_handler.h"
 
 
-const float THRESHOLD = 1.0;  // will have to be fine tuned
+const float THRESHOLD = 1.0f;
 const uint8_t QUEUE_CAPACITY = 6;
 
 double x_acc_error = 0.0;
 double y_acc_error = 0.0;
 double z_acc_error = 0.0;
 
-/*double x_gyr_error = 0.0;
-double y_gyr_error = 0.0;
-double z_gyr_error = 0.0;*/
-
 float x_acc = 0.0f;
 float y_acc = 0.0f;
 float z_acc = 0.0f;
-
-/*float x_gyr = 0.0f;
-float y_gyr = 0.0f;
-float z_gyr = 0.0f;*/
 
 struct INO_Data queue[QUEUE_CAPACITY];
 uint8_t queue_front = 0;
@@ -39,12 +31,6 @@ void read_accelerometer() {
   } 
 }
 
-/*void read_gyroscope() {
-  if (IMU.gyroscopeAvailable()) {
-    IMU.readGyroscope(x_gyr, y_gyr, z_gyr);
-  } 
-}*/
-
 void calculate_IMU_error() {
   for (uint8_t i = 0; i < 200; i++) {
     read_accelerometer();
@@ -52,10 +38,6 @@ void calculate_IMU_error() {
     y_acc_error += y_acc;
     z_acc_error += z_acc;
 
-    /*read_gyroscope();
-    x_gyr_error += x_gyr;
-    y_gyr_error += y_gyr;
-    z_gyr_error += z_gyr;*/
     delay(10);
   }
   //Divide the sum by 200 to get the error value
@@ -63,9 +45,6 @@ void calculate_IMU_error() {
   y_acc_error /= 200;
   z_acc_error /= 200;
 
-  /*x_gyr_error /= 200;
-  y_gyr_error /= 200;
-  z_gyr_error /= 200;*/
 }
 
 void initialize_IMU() {
@@ -90,19 +69,6 @@ struct INO_Data get_accelerometer_data() {
 
   return data;
 }
-
-/*struct INO_Data get_gyroscope_data() {
-
-
-  read_gyroscope();
-
-  struct INO_Data data;
-  data.x = x_gyr - x_gyr_error;
-  data.y = y_gyr - y_gyr_error;
-  data.z = z_gyr - z_gyr_error;
-
-  return data;
-}*/
 
 void enqueue(struct INO_Data data) {
 
@@ -243,18 +209,4 @@ bool has_flipped() {
   }
   return false;
 
-
-  /*struct INO_Data data = get_gyroscope_data();
-
-
-  if (data.x > 550 || data.x < -550 || data.y > 450 || data.y < -450) {
-    Serial.println("Gyroscope:  ");
-    Serial.println(data.x);
-    Serial.println(data.y);
-    Serial.println(data.z);
-
-    Serial.println();
-    return true;
-  }
-  return false;*/
 }
