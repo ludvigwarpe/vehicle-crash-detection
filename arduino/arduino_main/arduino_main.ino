@@ -1,33 +1,37 @@
 
-#include <SPI.h>
-#include <WiFiNINA.h>
-#include <ArduinoMqttClient.h>
-#include "arduino_secrets.h"
+// #include <SPI.h>
+// #include <WiFiNINA.h>
+// #include <ArduinoMqttClient.h>
+//#include <SoftwareSerial.h>
+//#include "arduino_secrets.h"
 #include "IMU_handler.h"
-#include <SoftwareSerial.h>
-#include <TinyGPS.h>
+#include "GPS_handler.h"
+#include "publisher.h"
+
+//#include <SoftwareSerial.h>
+//#include <TinyGPS.h>
 
 /*---- credentials for wifi ----*/
-char ssid[] = SECRET_SSID;
-char pass[] = SECRET_PASS;
+//char ssid[] = SECRET_SSID;
+//char pass[] = SECRET_PASS;
 
 // wifi and mqtt conection
-WiFiClient wifiClient;
-MqttClient mqttClient(wifiClient);
-int port = 1883;
-const char broker[] = "test.mosquitto.org";
-const char topic_latitude[] = "luwa9626/vehicle-crash-detection/sensors/gps/latitude";
-const char topic_longitude[] = "luwa9626/vehicle-crash-detection/sensors/gps/longitude";
-const char topic_speed[] = "luwa9626/vehicle-crash-detection/sensors/gps/speed";
-const char topic_impact[] = "luwa9626/vehicle-crash-detection/sensors/impact";
+// WiFiClient wifiClient;
+// MqttClient mqttClient(wifiClient);
+// int port = 1883;
+// const char broker[] = "test.mosquitto.org";
+// const char topic_latitude[] = "luwa9626/vehicle-crash-detection/sensors/gps/latitude";
+// const char topic_longitude[] = "luwa9626/vehicle-crash-detection/sensors/gps/longitude";
+// const char topic_speed[] = "luwa9626/vehicle-crash-detection/sensors/gps/speed";
+// const char topic_impact[] = "luwa9626/vehicle-crash-detection/sensors/impact";
 
 //GPS
-TinyGPS gps;
+/*TinyGPS gps;
 SoftwareSerial ss(4, 3);
 bool new_gps_data = false;
 float current_lat;
 float current_long;
-float current_speed;
+float current_speed;*/
 
 
 // sample rate
@@ -104,50 +108,50 @@ void loop() {
 
 
 // initializing wifi connection
-void connect_wifi() {
-  uint8_t status = WL_IDLE_STATUS;
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to network: ");
-    Serial.println(ssid);
-    status = WiFi.begin(ssid, pass);
-    Serial.println(status);
-    delay(5000);
-  }
-  Serial.println("You are now connected to the network: ");
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
-}
+// void connect_wifi() {
+//   uint8_t status = WL_IDLE_STATUS;
+//   while (status != WL_CONNECTED) {
+//     Serial.print("Attempting to connect to network: ");
+//     Serial.println(ssid);
+//     status = WiFi.begin(ssid, pass);
+//     Serial.println(status);
+//     delay(5000);
+//   }
+//   Serial.println("You are now connected to the network: ");
+//   Serial.print("SSID: ");
+//   Serial.println(WiFi.SSID());
+//   Serial.print("IP Address: ");
+//   Serial.println(WiFi.localIP());
+// }
 
 // initializing mqtt connection
-void connect_mqtt() {
-  Serial.print("Attempting to connect to the MQTT broker: ");
-  Serial.println(broker);
+// void connect_mqtt() {
+//   Serial.print("Attempting to connect to the MQTT broker: ");
+//   Serial.println(broker);
 
-  while (!mqttClient.connect(broker, port)) {
-    Serial.print("MQTT connection failed! Error code: ");
-    Serial.println(mqttClient.connectError());
-    delay(5000);
-  }
+//   while (!mqttClient.connect(broker, port)) {
+//     Serial.print("MQTT connection failed! Error code: ");
+//     Serial.println(mqttClient.connectError());
+//     delay(5000);
+//   }
 
-  Serial.println("You're connected to the MQTT broker!");
-  Serial.println();
-}
+//   Serial.println("You're connected to the MQTT broker!");
+//   Serial.println();
+// }
 
 // publishes message with specified topic on mqtt broker
-void send_message(char topic[], char message[]) {
-  mqttClient.beginMessage(topic);
-  mqttClient.print(message);
-  mqttClient.endMessage();
-}
+// void send_message(char topic[], char message[]) {
+//   mqttClient.beginMessage(topic);
+//   mqttClient.print(message);
+//   mqttClient.endMessage();
+// }
 
-//publishes gps data
-void send_message(char topic[], float message) {
-  mqttClient.beginMessage(topic);
-  mqttClient.print(message, 6);
-  mqttClient.endMessage();
-}
+// //publishes gps data
+// void send_message(char topic[], float message) {
+//   mqttClient.beginMessage(topic);
+//   mqttClient.print(message, 6);
+//   mqttClient.endMessage();
+// }
 
 
 // reads the impact sensor for collision
@@ -156,7 +160,7 @@ bool has_impact_collsion() {
   return digitalRead(impact_pin) == LOW;
 }
 
-void scan_gps_data(){
+/*void scan_gps_data(){
    while (ss.available())
     {
       char c = ss.read();
@@ -176,5 +180,5 @@ void get_location_data(){
 
 void get_speed_data(){
   current_speed = gps.f_speed_kmph() == TinyGPS::GPS_INVALID_F_SPEED ? 0.0 : gps.f_speed_kmph();
-}
+}*/
 
