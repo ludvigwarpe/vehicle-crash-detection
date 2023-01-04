@@ -1,5 +1,6 @@
 package com.example.androidclient;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,7 +9,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private String currentLatitude = "";
     private String currentLongitude = "";
     private String currentSpeed = "";
-    private String carFlipped = "";
+    private String collisionType = "";
     private boolean hasCollided = false;
     private long prevTime;
 
@@ -92,21 +92,12 @@ public class MainActivity extends AppCompatActivity {
                     Exception {
                 if (topic.equals((SENSORS_URI + SENSOR_IMPACT))) {
                     String newMessage = new String(message.getPayload());
-                    carFlipped = newMessage;
+                    collisionType = newMessage;
 
-                    //Shows alert dialog only once or when more then 3 seconds have passed
-                    if (!hasCollided) {
-                        hasCollided = true;
-                        buildAlertDialog();
-                        alert.show();
-                    }
-                    System.out.println("Incoming message: " + newMessage);
+                    buildAlertDialog();
+                    alert.show();
+                    //System.out.println("Incoming message: " + newMessage);
 
-                    long currentTimeMillis = System.currentTimeMillis();
-                    if (currentTimeMillis - prevTime >= 3000){
-                        hasCollided = false;
-                        prevTime = currentTimeMillis;
-                    }
                 }
                 if (topic.equals((SENSORS_URI + GPS_LATITUDE))) {
                     String newMessage = new String(message.getPayload());
@@ -195,9 +186,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void buildAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        String msg = "Collision detected\n" + "\nLATITUDE:" + currentLatitude + "\nLONGITUDE" + currentLongitude +"\n SPEED:" + currentSpeed + " km/h" + "\n" + "\nEMS will be notified.";
+
+        String msg = getAlertString();
+
         builder.setMessage(msg);
-        System.out.println(msg);
         builder.setTitle("VEHICLE COLLISION");
 
         builder.setPositiveButton("OK", (DialogInterface.OnClickListener) (dialog, which) -> {
@@ -211,5 +203,22 @@ public class MainActivity extends AppCompatActivity {
         alert = builder.create();
 
 
+    }
+
+    @NonNull
+    private String getAlertString() {
+        boolean flipped = false;
+        if (collisionType.equalsIgnoreCase("flipped")){
+            flipped = true;
+            collisionType = "";
+        }
+
+        String msg = "Collision detected\n"
+                + "\nLATITUDE:" + currentLatitude
+                + "\nLONGITUDE:" + currentLongitude
+                +"\nSPEED:" + currentSpeed + " km/h"
+                + "\nCAR ROLL: " + flipped
+                + "\nEMS will be notified.";
+        return msg;
     }
 }
