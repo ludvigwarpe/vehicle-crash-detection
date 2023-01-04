@@ -2,10 +2,11 @@
 #include <SPI.h>
 #include <WiFiNINA.h>
 #include <ArduinoMqttClient.h>
+#include <TinyGPS.h>
+#include <SoftwareSerial.h>
 #include "arduino_secrets.h"
 #include "IMU_handler.h"
-#include <SoftwareSerial.h>
-#include <TinyGPS.h>
+
 
 /*---- credentials for wifi ----*/
 char ssid[] = SECRET_SSID;
@@ -21,14 +22,13 @@ const char topic_longitude[] = "luwa9626/vehicle-crash-detection/sensors/gps/lon
 const char topic_speed[] = "luwa9626/vehicle-crash-detection/sensors/gps/speed";
 const char topic_impact[] = "luwa9626/vehicle-crash-detection/sensors/impact";
 
-//GPS
+//Variables used for GPS connection and data
 TinyGPS gps;
 SoftwareSerial ss(4, 3);
 bool new_gps_data = false;
-float current_lat;
-float current_long;
-float current_speed;
-
+float current_lat = 0.0;
+float current_long = 0.0;
+float current_speed = 0.0;
 
 // sample rate
 const uint8_t SAMPLE_RATE = 10;
@@ -73,7 +73,7 @@ void loop() {
 
   if (current_time_millis - previous_time_millis >= SAMPLE_RATE) {
 
-    scan_gps_data(); //Scans and encodes gps data from software serial
+    scan_gps_data();
   
     if (has_accelerometer_collision()) {
       Serial.println("Collision detected");
@@ -156,6 +156,7 @@ bool has_impact_collsion() {
   return digitalRead(impact_pin) == LOW;
 }
 
+//Scans and encodes gps data from software serial
 void scan_gps_data(){
    while (ss.available())
     {
@@ -166,6 +167,7 @@ void scan_gps_data(){
     }
   }
 
+//Parses latitude and longitude from NMEA sentences, if the age or angle is invalid the variables are assigned a value of 0.0
 void get_location_data(){
   unsigned long age;
   gps.f_get_position(&current_lat, &current_long, &age);
@@ -174,6 +176,7 @@ void get_location_data(){
   
 }
 
+//Parses ground speed in km/h, if the angle is invalid the variable is assigned 0.0
 void get_speed_data(){
   current_speed = gps.f_speed_kmph() == TinyGPS::GPS_INVALID_F_SPEED ? 0.0 : gps.f_speed_kmph();
 }
