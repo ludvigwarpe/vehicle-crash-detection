@@ -62,22 +62,16 @@ public class MainActivity extends AppCompatActivity {
             public void connectComplete(boolean reconnect, String serverURI) {
                 if (reconnect) {
                     System.out.println("Reconnected to : " + serverURI);
-                    txv_connection.setText("OK");
-                    txv_connection.setTextColor(Color.GREEN);
                     // Re-subscribe as we lost it due to new session
-                    subscribe(SENSORS_URI + SENSOR_IMPACT);
-                    subscribe(SENSORS_URI + GPS_LATITUDE);
-                    subscribe(SENSORS_URI + GPS_LONGITUDE);
-                    subscribe(SENSORS_URI + GPS_SPEED);
                 } else {
                     System.out.println("Connected to: " + serverURI);
-                    txv_connection.setText("OK");
-                    txv_connection.setTextColor(Color.GREEN);
-                    subscribe(SENSORS_URI + SENSOR_IMPACT);
-                    subscribe(SENSORS_URI + GPS_LATITUDE);
-                    subscribe(SENSORS_URI + GPS_LONGITUDE);
-                    subscribe(SENSORS_URI + GPS_SPEED);
                 }
+                txv_connection.setText("OK");
+                txv_connection.setTextColor(Color.GREEN);
+                subscribe(SENSORS_URI + SENSOR_IMPACT);
+                subscribe(SENSORS_URI + GPS_LATITUDE);
+                subscribe(SENSORS_URI + GPS_LONGITUDE);
+                subscribe(SENSORS_URI + GPS_SPEED);
             }
 
             @Override
@@ -91,8 +85,7 @@ public class MainActivity extends AppCompatActivity {
             public void messageArrived(String topic, MqttMessage message) throws
                     Exception {
                 if (topic.equals((SENSORS_URI + SENSOR_IMPACT))) {
-                    String newMessage = new String(message.getPayload());
-                    collisionType = newMessage;
+                    collisionType = new String(message.getPayload());
 
                     buildAlertDialog();
                     alert.show();
