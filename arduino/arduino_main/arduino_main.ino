@@ -2,18 +2,17 @@
 #include "GPS_handler.h"
 #include "publisher.h"
 
-
-// sample rate
+/*----- sample rate -----*/
 const uint8_t SAMPLE_RATE = 10;
 
-// impact sensor
+/*----- impact sensor -----*/
 const int IMPACT_PIN = 8;
 
-// used for delay
+/*----- used for delay -----*/
 unsigned long current_time_millis;
 unsigned long previous_time_millis;
 
-// starting program
+/*----- initialize program -----*/
 void setup() {
   Serial.begin(9600);
   ss.begin(9600);
@@ -24,7 +23,7 @@ void setup() {
   initialize_IMU();
   delay(1000);
 }
-// main program loop
+/*----- main program loop -----*/
 void loop() {
 
   check_connection();
@@ -58,7 +57,7 @@ void loop() {
   }
 }
 
-// reads the impact sensor for collision
+/*----- reads the impact sensor for collision -----*/
 bool has_impact_collsion() {
   return digitalRead(IMPACT_PIN) == LOW;
 }

@@ -1,6 +1,7 @@
 #include "IMU_handler.h"
 
 const float THRESHOLD = 1.0f;
+const uint8_t MAX_FLIPS_IN_ROW = 15;
 const uint8_t QUEUE_CAPACITY = 6;
 
 double x_acc_error = 0.0;
@@ -28,7 +29,7 @@ void read_accelerometer() {
   } 
 }
 
-void calculate_IMU_error() {
+void calculate_accelerometer_error() {
   for (uint8_t i = 0; i < 200; i++) {
     read_accelerometer();
     x_acc_error += x_acc;
@@ -37,7 +38,7 @@ void calculate_IMU_error() {
 
     delay(10);
   }
-  //Divide the sum by 200 to get the error value
+  //Divide the sum by 200 to get the error value since we read the sensor 200 times
   x_acc_error /= 200;
   y_acc_error /= 200;
   z_acc_error /= 200;
@@ -50,13 +51,11 @@ void initialize_IMU() {
     Serial.println("Failed to initialize IMU!");
     delay(5000);
   }
-  calculate_IMU_error();
+  calculate_accelerometer_error();
   Serial.println("IMU initialized!");
 }
 
 struct Data get_accelerometer_data() {
-
-
   read_accelerometer();
 
   struct Data data;
@@ -91,12 +90,9 @@ double calculate_vector_sum() {
 }
 
 struct Data calibrate_data() {
-
-
   double x_sum = 0.0;
   double y_sum = 0.0;
   double z_sum = 0.0;
-
 
   for (uint8_t i = 0; i < queue_size; i++) {
     x_sum += queue[i].x;
@@ -116,7 +112,6 @@ struct Data calibrate_data() {
 
   double z_even_sum = 0.0f;
   double z_odd_sum = 0.0f;
-
 
   for (uint8_t i = 0; i < queue_size; i++) {
     if (i % 2 == 0) {
@@ -158,15 +153,13 @@ struct Data calibrate_data() {
 
 
 bool has_accelerometer_collision() {
-
   struct Data raw_data = get_accelerometer_data();
 
-
+  // if the queue is full we have to dequeue
   if (queue_size == QUEUE_CAPACITY) {
     dequeue();
   }
   enqueue(raw_data);
-
 
   current_calibrated_data = calibrate_data();
   double magnitude = calculate_vector_sum();
@@ -180,24 +173,23 @@ bool has_accelerometer_collision() {
     return true;
   }
   
-
   return false;
 }
 
 bool has_flipped() {
-
   struct Data data = get_accelerometer_data();
 
-  double roll = atan2(data.y, data.z) * 180/M_PI;
+  double roll = atan2(data.y, data.z) * 180/M_PI; // calculation for roll
 
   if ((roll > 160)||(roll < -160)){
     flipped_counter++;
-    if (flipped_counter >= 15){
+    // has to detect 15 flipps in a row for accuracy since the sensor can give false positives very randomly
+    if (flipped_counter >= MAX_FLIPS_IN_ROW){ 
       Serial.println(roll);
       return true;
     }
   }
-  else{
+  else{ // reset counter
     flipped_counter = 0;
   }
   return false;
