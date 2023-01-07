@@ -1,7 +1,4 @@
-
-#include <Arduino_LSM6DS3.h>
 #include "IMU_handler.h"
-
 
 const float THRESHOLD = 1.0f;
 const uint8_t QUEUE_CAPACITY = 6;
@@ -14,13 +11,13 @@ float x_acc = 0.0f;
 float y_acc = 0.0f;
 float z_acc = 0.0f;
 
-struct INO_Data queue[QUEUE_CAPACITY];
+struct Data queue[QUEUE_CAPACITY];
 uint8_t queue_front = 0;
 uint8_t queue_rear = 0;
 uint8_t queue_size = 0;
 
-struct INO_Data current_calibrated_data;
-struct INO_Data previous_calibrated_data;
+struct Data current_calibrated_data;
+struct Data previous_calibrated_data;
 
 uint8_t flipped_counter = 0;
 
@@ -57,12 +54,12 @@ void initialize_IMU() {
   Serial.println("IMU initialized!");
 }
 
-struct INO_Data get_accelerometer_data() {
+struct Data get_accelerometer_data() {
 
 
   read_accelerometer();
 
-  struct INO_Data data;
+  struct Data data;
   data.x = x_acc - x_acc_error;
   data.y = y_acc - y_acc_error;
   data.z = z_acc - z_acc_error;
@@ -70,9 +67,7 @@ struct INO_Data get_accelerometer_data() {
   return data;
 }
 
-void enqueue(struct INO_Data data) {
-
-
+void enqueue(struct Data data) {
   if (queue_size < QUEUE_CAPACITY) {
     queue_rear = (queue_rear + 1) % QUEUE_CAPACITY;
     queue[queue_rear] = data;
@@ -81,8 +76,6 @@ void enqueue(struct INO_Data data) {
 }
 
 void dequeue() {
-
-
   if (queue_size > 0) {
     queue_front = (queue_front + 1) % QUEUE_CAPACITY;
     queue_size--;
@@ -97,7 +90,7 @@ double calculate_vector_sum() {
   return sqrt(delt_x * delt_x + delt_y * delt_y + delt_z * delt_z);
 }
 
-struct INO_Data calibrate_data() {
+struct Data calibrate_data() {
 
 
   double x_sum = 0.0;
@@ -153,7 +146,7 @@ struct INO_Data calibrate_data() {
   double y = (y1_avg + y2_avg) / 2;
   double z = (z1_avg + z2_avg) / 2;
 
-  struct INO_Data calibrated_data;
+  struct Data calibrated_data;
 
   calibrated_data.x = x;
   calibrated_data.y = y;
@@ -166,7 +159,7 @@ struct INO_Data calibrate_data() {
 
 bool has_accelerometer_collision() {
 
-  struct INO_Data raw_data = get_accelerometer_data();
+  struct Data raw_data = get_accelerometer_data();
 
 
   if (queue_size == QUEUE_CAPACITY) {
@@ -176,13 +169,13 @@ bool has_accelerometer_collision() {
 
 
   current_calibrated_data = calibrate_data();
-  double vector_sum = calculate_vector_sum();
+  double magnitude = calculate_vector_sum();
 
   previous_calibrated_data = current_calibrated_data;
 
-  if (vector_sum > THRESHOLD) {
+  if (magnitude > THRESHOLD) {
     Serial.print("COLLISION: ");
-    Serial.println(vector_sum);
+    Serial.println(magnitude);
 
     return true;
   }
@@ -193,7 +186,7 @@ bool has_accelerometer_collision() {
 
 bool has_flipped() {
 
-  struct INO_Data data = get_accelerometer_data();
+  struct Data data = get_accelerometer_data();
 
   double roll = atan2(data.y, data.z) * 180/M_PI;
 
