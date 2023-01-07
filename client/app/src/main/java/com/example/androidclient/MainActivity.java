@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -18,6 +20,9 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
 
     private MqttAndroidClient client;
 
-    private AlertDialog alert;
     private TextView txv_connection;
     private TextView txv_latitude;
     private TextView txv_longitude;
@@ -42,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private String currentSpeed = "";
     private String collisionType = "";
     private boolean hasCollided = false;
-    private long prevTime;
 
 
     @Override
@@ -93,30 +96,24 @@ public class MainActivity extends AppCompatActivity {
                 if (topic.equals((SENSORS_URI + SENSOR_IMPACT))) {
                     String newMessage = new String(message.getPayload());
                     collisionType = newMessage;
-
                     buildAlertDialog();
-                    alert.show();
-                    //System.out.println("Incoming message: " + newMessage);
 
                 }
                 if (topic.equals((SENSORS_URI + GPS_LATITUDE))) {
                     String newMessage = new String(message.getPayload());
                     currentLatitude = newMessage;
                     txv_latitude.setText(newMessage);
-                    //System.out.println("Incoming message: " + newMessage);
                 }
                 if (topic.equals((SENSORS_URI + GPS_LONGITUDE))) {
                     String newMessage = new String(message.getPayload());
                     currentLongitude = newMessage;
                     txv_longitude.setText(newMessage);
-                    //System.out.println("Incoming message: " + newMessage);
                 }
 
                 if (topic.equals((SENSORS_URI + GPS_SPEED))) {
                     String newMessage = new String(message.getPayload());
                     currentSpeed = newMessage;
                     txv_speed.setText(newMessage);
-                    //System.out.println("Incoming message: " + newMessage);
                 }
             }
 
@@ -184,25 +181,49 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void buildAlertDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+    private void buildAlertDialog(){
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("VEHICLE COLLISION")
+                .setMessage(getAlertString())
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("CANCEL", null)
+                .create();
+        addTimerToDialog(alertDialog);
+        alertDialog.show();
+    }
 
-        String msg = getAlertString();
+    private void addTimerToDialog(AlertDialog alertDialog){
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            private static final int AUTO_DISMISS_MILLIS = 10000;
 
-        builder.setMessage(msg);
-        builder.setTitle("VEHICLE COLLISION");
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                final Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                final CharSequence negativeButtonText = button.getText();
 
-        builder.setPositiveButton("OK", (DialogInterface.OnClickListener) (dialog, which) -> {
-            dialog.dismiss();
+                new CountDownTimer(10000, 100) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        button.setText(String.format(
+                                Locale.getDefault(), "%s (%d)",
+                                negativeButtonText,
+                                TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) + 1 //add one so it never displays zero
+                        ));
+                    }
+                    @Override
+                    public void onFinish() {
+                        if (((AlertDialog) dialog).isShowing()) {
+                            dialog.dismiss();
+                        }
+                    }
+                }.start();
+            }
         });
-
-        builder.setNegativeButton("CANCEL", (DialogInterface.OnClickListener) (dialog, which) -> {
-            dialog.cancel();
-        });
-
-        alert = builder.create();
-
-
     }
 
     @NonNull
@@ -213,12 +234,11 @@ public class MainActivity extends AppCompatActivity {
             collisionType = "";
         }
 
-        String msg = "Collision detected\n"
-                + "\nLATITUDE:" + currentLatitude
+        String msg = "\nLATITUDE:" + currentLatitude
                 + "\nLONGITUDE:" + currentLongitude
                 +"\nSPEED:" + currentSpeed + " km/h"
                 + "\nCAR ROLL: " + flipped
-                + "\nEMS will be notified.";
+                + "\n\nEMS will be notified.";
         return msg;
     }
 }
