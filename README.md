@@ -14,6 +14,7 @@ Arduino:
 - TinyGPS by Mikal Hart
 - Wifinna by Arduino
 - ArduinoMqttClient by Arduino
+- Arduino_LSM6DS3 by Arduino
 
 Android Studio:
 - Eclipse Paho Android Service by The Eclipse Foundation
