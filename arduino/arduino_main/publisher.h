@@ -10,29 +10,30 @@
 extern char ssid[];
 extern char pass[];
 
-// wifi and mqtt conection
+/*---- connection variables ----*/
 extern WiFiClient wifiClient;
 extern MqttClient mqttClient;
-
 extern int port;
 extern const char broker[];
+
+/*---- mqtt topics ----*/
 extern const char topic_latitude[];
 extern const char topic_longitude[];
 extern const char topic_speed[];
 extern const char topic_accident[];
 
-// initializing wifi connection
+/*---- connects to wifi ----*/
 void connect_wifi();
 
-// initializing mqtt connection
+/*---- connects mqtt ----*/
 void connect_mqtt();
 
+/*---- checks the connections and reconnects if needed ----*/
 void check_connection();
 
-// publishes message with specified topic on mqtt broker
-void send_message(char topic[], char message[]);
 
-//publishes gps data
+/*---- publishes message with specified topic on mqtt broker ----*/
+void send_message(char topic[], char message[]);
 void send_message(char topic[], float message);
 
 
