@@ -24,6 +24,10 @@ Android Studio:
 ## Prototype
 ![bil](https://user-images.githubusercontent.com/75011876/211159002-da13a09c-670e-4286-8a3a-f1aae2d3ea1b.jpg)
 
+## Flowchart of System
+![flowchart_IoT](https://user-images.githubusercontent.com/75011876/211159647-24db7d26-ce97-4a6d-8e46-62dcf82eb59c.png)
+
+
 ## Testing
 Testing of the prototype included 18 different scenarios based on different factors such as: speed, direction of the impact and if the car rolled over. We had overall accurate results predicting if a collison had occured.
 
