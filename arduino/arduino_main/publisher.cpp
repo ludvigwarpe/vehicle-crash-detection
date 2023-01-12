@@ -14,6 +14,12 @@ const char topic_longitude[] = "luwa9626/vehicle-crash-detection/sensors/gps/lon
 const char topic_speed[] = "luwa9626/vehicle-crash-detection/sensors/gps/speed";
 const char topic_accident[] = "luwa9626/vehicle-crash-detection/sensors/impact";
 
+bool retained = true;
+int qos = 1;
+bool duplicates = false;
+
+
+
 
 void connect_wifi() {
   uint8_t status = WL_IDLE_STATUS;
@@ -60,7 +66,7 @@ void check_connection(){
 
 
 void send_message(char topic[], char message[]) {
-  mqttClient.beginMessage(topic);
+  mqttClient.beginMessage(topic, sizeof(message), retained, qos, duplicates);
   mqttClient.print(message);
   mqttClient.endMessage();
  /* Serial.print("Sent to topic: ");
@@ -72,7 +78,7 @@ void send_message(char topic[], char message[]) {
 
 
 void send_message(char topic[], float message) {
-  mqttClient.beginMessage(topic);
+  mqttClient.beginMessage(topic, sizeof(message), retained, qos, duplicates);
   mqttClient.print(message, 6);
   mqttClient.endMessage();
   /*Serial.print("Sent to topic: ");

@@ -22,6 +22,12 @@ extern const char topic_longitude[];
 extern const char topic_speed[];
 extern const char topic_accident[];
 
+
+/*---- mqtt parameters for publishing ----*/
+extern bool retained;
+extern int qos;
+extern bool duplicates;
+
 /*---- connects to wifi ----*/
 void connect_wifi();
 
