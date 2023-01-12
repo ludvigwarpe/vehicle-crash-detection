@@ -14,7 +14,7 @@ const char topic_longitude[] = "luwa9626/vehicle-crash-detection/sensors/gps/lon
 const char topic_speed[] = "luwa9626/vehicle-crash-detection/sensors/gps/speed";
 const char topic_accident[] = "luwa9626/vehicle-crash-detection/sensors/impact";
 
-bool retained = true;
+bool retained = false;
 int qos = 1;
 bool duplicates = false;
 
